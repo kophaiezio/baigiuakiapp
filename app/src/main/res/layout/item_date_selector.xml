@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/date_item_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:background="?android:attr/selectableItemBackground"
+
+    android:clickable="true" android:focusable="true">
+
+    <TextView android:id="@+id/tv_day_of_week" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#757575"
+
+        tools:text="T2"/>
+
+    <TextView android:id="@+id/tv_date_number" android:layout_width="32dp"
+
+        android:layout_height="32dp"
+
+        android:layout_marginTop="4dp" android:gravity="center" android:textSize="16sp" android:textColor="@color/black" android:textStyle="bold" android:background="@drawable/date_selector_background"
+
+        tools:text="13"/>
+
+</LinearLayout>
