@@ -11,9 +11,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.text.ParseException; // Thêm import này
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date; // Thêm import này
 import java.util.List;
 import java.util.Locale;
 import androidx.appcompat.app.AlertDialog;
@@ -21,7 +23,7 @@ import androidx.appcompat.app.AlertDialog;
 // Implement CẢ HAI interface: chọn ngày VÀ tương tác sửa/xóa
 public class ScheduleActivity extends AppCompatActivity implements
         DateSelectorAdapter.OnDateSelectedListener,
-        ScheduleAdapter.OnScheduleInteractionListener { // <-- THÊM INTERFACE NÀY
+        ScheduleAdapter.OnScheduleInteractionListener {
 
     // --- Khai báo biến (giữ nguyên) ---
     RecyclerView rvScheduleItems, rvDateSelector;
@@ -33,7 +35,6 @@ public class ScheduleActivity extends AppCompatActivity implements
     ImageView btnPrevDay, btnNextDay;
     Calendar selectedDate = Calendar.getInstance();
 
-    // --- onCreate (giữ nguyên phần lớn) ---
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,17 +51,63 @@ public class ScheduleActivity extends AppCompatActivity implements
         // Thiết lập RecyclerView chọn ngày (giữ nguyên)
         setupDateSelector();
 
-        // Thiết lập RecyclerView lịch trình (sẽ sửa đổi cách tạo adapter)
+        // Thiết lập RecyclerView lịch trình (giữ nguyên)
         setupScheduleList(selectedDate);
 
-        // Xử lý nút bấm (giữ nguyên)
+        // Xử lý nút "Thêm lịch học" (giữ nguyên)
         btnAddSchedule.setOnClickListener(v -> {
             Intent intent = new Intent(ScheduleActivity.this, CreateTaskActivity.class);
             startActivity(intent);
         });
+
+        // --- SỬA LỖI Ở ĐÂY: CẬP NHẬT OnClickListener CHO btnStartLearning ---
         btnStartLearning.setOnClickListener(v -> {
-            Toast.makeText(this, "Bắt đầu học...", Toast.LENGTH_SHORT).show();
+            // Logic để mở StudyModeActivity
+
+            // TODO: Bạn cần logic thông minh hơn để xác định task "hiện tại".
+            // Ví dụ: Tìm task đầu tiên chưa hoàn thành trong ngày hôm nay.
+            // Tạm thời, chúng ta lấy task đầu tiên trong danh sách (nếu có).
+
+            if (scheduleDataList != null && !scheduleDataList.isEmpty()) {
+                ScheduleItem currentTask = scheduleDataList.get(0); // Lấy task đầu tiên
+
+                // Tính thời gian (ví dụ: 08:00 - 09:00 -> 60 phút)
+                long durationMinutes = 45; // Mặc định 45 phút
+
+                try {
+                    // Thử tính toán thời gian thực tế
+                    SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                    Date startTime = timeFormat.parse(currentTask.startTime);
+                    Date endTime = timeFormat.parse(currentTask.endTime);
+                    long diffInMillis = endTime.getTime() - startTime.getTime();
+                    // Chuyển sang phút, xử lý trường hợp qua ngày (nếu endTime < startTime)
+                    if (diffInMillis < 0) {
+                        diffInMillis += 24 * 60 * 60 * 1000; // Thêm 24 giờ
+                    }
+                    durationMinutes = diffInMillis / (60 * 1000);
+
+                } catch (ParseException e) {
+                    // Nếu lỗi parse, dùng 45 phút mặc định
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    // Bắt các lỗi khác
+                    e.printStackTrace();
+                }
+
+                // Mở StudyModeActivity
+                Intent intent = new Intent(ScheduleActivity.this, StudyModeActivity.class);
+                intent.putExtra("TASK_NAME", currentTask.title);
+                intent.putExtra("TASK_DURATION_MINUTES", durationMinutes); // Gửi số phút (long)
+                startActivity(intent);
+
+            } else {
+                // Không có lịch trình để bắt đầu
+                Toast.makeText(this, "Không có lịch trình để bắt đầu", Toast.LENGTH_SHORT).show();
+            }
         });
+        // --- KẾT THÚC SỬA LỖI ---
+
+        // Xử lý nút bấm mũi tên (giữ nguyên)
         btnPrevDay.setOnClickListener(v -> scrollDays(-1));
         btnNextDay.setOnClickListener(v -> scrollDays(1));
     }
@@ -90,9 +137,8 @@ public class ScheduleActivity extends AppCompatActivity implements
         rvDateSelector.scrollToPosition(daysBefore);
     }
 
-    // --- setupScheduleList (SỬA ĐỔI CÁCH TẠO ADAPTER) ---
+    // --- setupScheduleList (giữ nguyên) ---
     private void setupScheduleList(Calendar date) {
-        // --- Phần lấy dữ liệu (giữ nguyên) ---
         scheduleDataList = new ArrayList<>();
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra("NEW_TASK_NAME") && isSameDay(date, Calendar.getInstance())) {
@@ -102,25 +148,22 @@ public class ScheduleActivity extends AppCompatActivity implements
             String startTime = newTime != null ? newTime : "00:00";
             String endTime = calculateEndTime(startTime, 1);
             scheduleDataList.add(new ScheduleItem(startTime, endTime, newName, newContent, "study"));
-            intent.removeExtra("NEW_TASK_NAME"); // Quan trọng: Xóa để không thêm lại
+            intent.removeExtra("NEW_TASK_NAME");
         }
         if (scheduleDataList.isEmpty() && isSameDay(date, Calendar.getInstance())) {
             scheduleDataList.add(new ScheduleItem("08:00", "09:00", "Làm bài tập Anh", "Unit 5 Workbook", "study"));
             scheduleDataList.add(new ScheduleItem("09:00", "09:15", "Nghỉ ngơi", "Uống nước, đi lại", "rest"));
         } else if (scheduleDataList.isEmpty()) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM", Locale.getDefault());
+            // (Bạn có thể bỏ comment dòng sau để hiện thông báo ngày trống)
             // scheduleDataList.add(new ScheduleItem("", "", "Không có lịch trình", "Cho ngày " + dateFormat.format(date.getTime()), "rest"));
         }
-        // --- Kết thúc phần lấy dữ liệu ---
 
-        // --- Cập nhật Adapter (SỬA ĐỔI) ---
         if (scheduleAdapter == null) {
-            // Khi tạo mới, truyền 'this' làm listener
-            scheduleAdapter = new ScheduleAdapter(this, scheduleDataList, this); // <-- THAY ĐỔI Ở ĐÂY
+            scheduleAdapter = new ScheduleAdapter(this, scheduleDataList, this);
             rvScheduleItems.setLayoutManager(new LinearLayoutManager(this));
             rvScheduleItems.setAdapter(scheduleAdapter);
         } else {
-            // Khi cập nhật, chỉ cần gọi updateData
             scheduleAdapter.updateData(scheduleDataList);
         }
     }
@@ -151,25 +194,23 @@ public class ScheduleActivity extends AppCompatActivity implements
         if (layoutManager != null && dateAdapter != null) {
             int currentSelectedPos = -1;
             for(int i=0; i<dateDataList.size(); i++){
-                // Dùng isSelected vì selectedPosition trong adapter là private
                 if(dateDataList.get(i).isSelected){
                     currentSelectedPos = i;
                     break;
                 }
             }
-            // Hoặc dùng selectedPosition nếu bạn làm nó public/có getter trong adapter
 
             int targetPosition = currentSelectedPos + amount;
 
             if (targetPosition >= 0 && targetPosition < dateAdapter.getItemCount()) {
                 Calendar targetDate = dateDataList.get(targetPosition).calendar;
-                dateAdapter.setSelectedPosition(targetPosition); // Yêu cầu adapter cập nhật lựa chọn
-                onDateSelected(targetDate); // Gọi hàm để load lại lịch
+                dateAdapter.setSelectedPosition(targetPosition);
+                onDateSelected(targetDate);
 
                 int firstVisible = layoutManager.findFirstVisibleItemPosition();
                 int lastVisible = layoutManager.findLastVisibleItemPosition();
                 if (targetPosition < firstVisible || targetPosition > lastVisible) {
-                    rvScheduleItems.smoothScrollToPosition(targetPosition); // Cuộn nếu cần
+                    rvScheduleItems.smoothScrollToPosition(targetPosition);
                 }
             }
         }
@@ -182,46 +223,32 @@ public class ScheduleActivity extends AppCompatActivity implements
                 cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 
-
-    // --- HÀM MỚI: XỬ LÝ SỰ KIỆN SỬA TỪ ADAPTER ---
+    // --- onEditClick (giữ nguyên) ---
     @Override
     public void onEditClick(int position) {
         if (position >= 0 && position < scheduleDataList.size()) {
             ScheduleItem itemToEdit = scheduleDataList.get(position);
             Toast.makeText(this, "Sửa: " + itemToEdit.title + " (Chưa implement)", Toast.LENGTH_SHORT).show();
             // TODO: Mở CreateTaskActivity với dữ liệu của itemToEdit để sửa
-            // Intent intent = new Intent(this, CreateTaskActivity.class);
-            // intent.putExtra("MODE", "EDIT"); // Đánh dấu là chế độ sửa
-            // intent.putExtra("ITEM_POSITION", position);
-            // intent.putExtra("ITEM_TITLE", itemToEdit.title);
-            // ... gửi các dữ liệu khác
-            // startActivityForResult(intent, REQUEST_CODE_EDIT); // Dùng nếu cần nhận kết quả trả về
         }
     }
 
-    // --- HÀM MỚI: XỬ LÝ SỰ KIỆN XÓA TỪ ADAPTER ---
+    // --- onDeleteClick (giữ nguyên) ---
     @Override
     public void onDeleteClick(int position) {
         if (position >= 0 && position < scheduleDataList.size()) {
             ScheduleItem itemToDelete = scheduleDataList.get(position);
-
-            // Hiện hộp thoại xác nhận xóa (khuyến khích)
             new AlertDialog.Builder(this)
                     .setTitle("Xác nhận xóa")
                     .setMessage("Bạn có chắc muốn xóa lịch trình '" + itemToDelete.title + "'?")
                     .setPositiveButton("Xóa", (dialog, which) -> {
-                        // TODO: Xóa item khỏi Database (nếu có) trước khi xóa khỏi list
-
-                        // Xóa item khỏi danh sách dữ liệu
+                        // TODO: Xóa item khỏi Database
                         scheduleDataList.remove(position);
-                        // Thông báo cho adapter biết item đã bị xóa tại vị trí đó
                         scheduleAdapter.notifyItemRemoved(position);
-                        // Thông báo thay đổi vị trí các item còn lại (quan trọng để index không bị sai)
                         scheduleAdapter.notifyItemRangeChanged(position, scheduleDataList.size());
-
                         Toast.makeText(this, "Đã xóa: " + itemToDelete.title, Toast.LENGTH_SHORT).show();
                     })
-                    .setNegativeButton("Hủy", null) // Không làm gì khi nhấn Hủy
+                    .setNegativeButton("Hủy", null)
                     .show();
         }
     }

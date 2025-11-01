@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GoalManagement">
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -31,6 +32,13 @@
             android:name=".ScheduleActivity"
             android:exported="false" />
 
-    </application>
+        <activity
+            android:name=".ProgressActivity"
+            android:exported="false" />
 
+        <activity
+            android:name=".StudyModeActivity"
+            android:exported="false" />
+
+    </application>
 </manifest>

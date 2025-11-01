@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.core.widget.NestedScrollView
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent"
+
+    android:fillViewport="true"
+
+    tools:context=".WeekProgressFragment">
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:paddingBottom="16dp">
+
+
+
+        <androidx.cardview.widget.CardView
+
+            android:id="@+id/card_weekly_stats"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginStart="16dp"
+
+            android:layout_marginEnd="16dp"
+
+            android:layout_marginTop="16dp"
+
+            app:cardCornerRadius="16dp"
+
+            app:cardElevation="4dp"
+
+            app:cardBackgroundColor="@color/white"
+
+            app:layout_constraintTop_toTopOf="parent">
+
+
+
+            <LinearLayout
+
+                android:layout_width="match_parent"
+
+                android:layout_height="wrap_content"
+
+                android:orientation="vertical"
+
+                android:padding="16dp">
+
+
+
+                <LinearLayout
+
+                    android:layout_width="match_parent"
+
+                    android:layout_height="wrap_content"
+
+                    android:orientation="horizontal"
+
+                    android:gravity="center_vertical">
+
+                    <ImageView
+
+                        android:layout_width="wrap_content"
+
+                        android:layout_height="wrap_content"
+
+                        android:src="@drawable/ic_bar_chart"
+
+
+
+                        app:tint="@color/black"/>
+
+
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Thống kê tuần này" android:textColor="@color/black" android:textStyle="bold"/> </LinearLayout>
+
+
+
+                <LinearLayout
+
+                    android:layout_width="match_parent"
+
+                    android:layout_height="wrap_content"
+
+                    android:orientation="horizontal"
+
+                    android:layout_marginTop="16dp"
+
+                    android:baselineAligned="false">
+
+                    <LinearLayout style="@style/WeekBarColumn"> <TextView style="@style/WeekBarLabelHours" android:text="2h"/> <View style="@style/WeekBar" android:layout_height="40dp"/> <TextView style="@style/WeekBarLabelDay" android:text="T2"/> </LinearLayout>
+
+
+
+                    <LinearLayout style="@style/WeekBarColumn"> <TextView style="@style/WeekBarLabelHours" android:text="1.5h"/> <View style="@style/WeekBar" android:layout_height="30dp"/> <TextView style="@style/WeekBarLabelDay" android:text="T3"/> </LinearLayout>
+
+
+
+                    <LinearLayout style="@style/WeekBarColumn"> <TextView style="@style/WeekBarLabelHours" android:text="2h"/> <View style="@style/WeekBar" android:layout_height="40dp"/> <TextView style="@style/WeekBarLabelDay" android:text="T4"/> </LinearLayout>
+
+
+
+                    <LinearLayout style="@style/WeekBarColumn"> <TextView style="@style/WeekBarLabelHours" android:text="1h"/> <View style="@style/WeekBar" android:layout_height="20dp"/> <TextView style="@style/WeekBarLabelDay" android:text="T5"/> </LinearLayout>
+
+
+
+                    <LinearLayout style="@style/WeekBarColumn"> <TextView style="@style/WeekBarLabelHours" android:text="0h"/> <View style="@style/WeekBar" android:layout_height="5dp"/> <TextView style="@style/WeekBarLabelDay" android:text="T6"/> </LinearLayout>
+
+
+
+                    <LinearLayout style="@style/WeekBarColumn"> <TextView style="@style/WeekBarLabelHours" android:text="2.5h"/> <View style="@style/WeekBarHighlight" android:layout_height="50dp"/> <TextView style="@style/WeekBarLabelDayHighlight" android:text="T7"/> </LinearLayout>
+
+
+
+                    <LinearLayout style="@style/WeekBarColumn"> <TextView style="@style/WeekBarLabelHours" android:text="1.5h"/> <View style="@style/WeekBar" android:layout_height="30dp"/> <TextView style="@style/WeekBarLabelDay" android:text="CN"/> </LinearLayout> </LinearLayout>
+
+
+
+                <LinearLayout
+
+                    android:layout_width="match_parent"
+
+                    android:layout_height="wrap_content"
+
+                    android:orientation="horizontal"
+
+                    android:layout_marginTop="16dp">
+
+                    <LinearLayout style="@style/WeekSummaryColumn"> <TextView style="@style/WeekSummaryValue" android:text="10.5h"/> <TextView style="@style/WeekSummaryLabel" android:text="Tuần này"/> </LinearLayout>
+
+
+
+                    <LinearLayout style="@style/WeekSummaryColumn"> <TextView style="@style/WeekSummaryValue" android:text="12.5h"/> <TextView style="@style/WeekSummaryLabel" android:text="Tuần trước"/> </LinearLayout>
+
+
+
+                    <LinearLayout style="@style/WeekSummaryColumn"> <TextView style="@style/WeekSummaryValue" android:text="11.2h"/>
+
+
+
+                        <TextView style="@style/WeekSummaryLabel" android:text="Trung bình"/> </LinearLayout> </LinearLayout>
+
+
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+
+
+        <LinearLayout
+
+            android:id="@+id/ll_stats_week"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal"
+
+            android:layout_marginTop="16dp"
+
+            android:paddingStart="16dp"
+
+            android:paddingEnd="16dp"
+
+            app:layout_constraintTop_toBottomOf="@id/card_weekly_stats">
+
+            <androidx.cardview.widget.CardView style="@style/StatsCard"> <LinearLayout style="@style/StatsCardContent"> <ProgressBar android:id="@+id/progress_completed_week" style="?android:attr/progressBarStyleHorizontal" android:layout_width="60dp" android:layout_height="60dp" android:max="100" android:progress="72" android:progressDrawable="@drawable/circular_progress_bar_green"/> <TextView style="@style/StatsCardLabel" android:text="Hoàn thành"/> </LinearLayout> </androidx.cardview.widget.CardView>
+
+
+
+            <androidx.cardview.widget.CardView style="@style/StatsCard" android:layout_marginStart="16dp" android:layout_marginEnd="16dp"> <LinearLayout style="@style/StatsCardContent"> <ProgressBar android:id="@+id/progress_skipped_week" style="?android:attr/progressBarStyleHorizontal" android:layout_width="60dp" android:layout_height="60dp" android:max="100" android:progress="15" android:progressDrawable="@drawable/circular_progress_bar_orange"/> <TextView style="@style/StatsCardLabel" android:text="Bỏ qua"/> </LinearLayout> </androidx.cardview.widget.CardView>
+
+
+
+            <androidx.cardview.widget.CardView style="@style/StatsCard"> <LinearLayout style="@style/StatsCardContent"> <ProgressBar android:id="@+id/progress_postponed_week" style="?android:attr/progressBarStyleHorizontal" android:layout_width="60dp" android:layout_height="60dp" android:max="100" android:progress="13" android:progressDrawable="@drawable/circular_progress_bar_blue"/> <TextView style="@style/StatsCardLabel" android:text="Dời lịch"/> </LinearLayout> </androidx.cardview.widget.CardView> </LinearLayout>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>
