@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_mini_timer_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="24dp"
+    app:cardCornerRadius="16dp"
+    app:cardBackgroundColor="#E0F7FA"
+    app:cardElevation="0dp"
+    tools:layout_constraintTop_toBottomOf="@id/img_avatar">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tv_mini_timer_task_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nghe TOEIC - Listening Practice"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_mini_timer_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="30:00"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_mini_timer_task_name"/>
+
+        <ImageButton
+            android:id="@+id/btn_mini_postpone"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/button_circle_filled_gray"
+            android:contentDescription="Dời lịch"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_close"
+            app:layout_constraintTop_toBottomOf="@id/tv_mini_timer_time"
+
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_mini_pause_play"
+            app:layout_constraintHorizontal_chainStyle="packed"/>
+
+        <ImageButton
+            android:id="@+id/btn_mini_pause_play"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/button_circle_outline"
+            android:contentDescription="Bắt đầu"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_play"
+            app:layout_constraintTop_toTopOf="@id/btn_mini_postpone"
+
+            app:layout_constraintStart_toEndOf="@id/btn_mini_postpone"
+            app:layout_constraintEnd_toStartOf="@id/btn_mini_complete" />
+
+        <ImageButton
+            android:id="@+id/btn_mini_complete"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/button_circle_filled_gray"
+            android:contentDescription="Hoàn thành"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_double_arrow_right"
+            app:layout_constraintTop_toTopOf="@id/btn_mini_postpone"
+
+            app:layout_constraintStart_toEndOf="@id/btn_mini_pause_play"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_mini_postpone_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dời lịch"
+            android:textColor="#757575"
+            app:layout_constraintTop_toBottomOf="@id/btn_mini_postpone"
+            app:layout_constraintStart_toStartOf="@id/btn_mini_postpone"
+            app:layout_constraintEnd_toEndOf="@id/btn_mini_postpone"/>
+
+        <TextView
+            android:id="@+id/tv_mini_pause_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bắt đầu"
+            android:textColor="#757575"
+            app:layout_constraintTop_toBottomOf="@id/btn_mini_pause_play"
+            app:layout_constraintStart_toStartOf="@id/btn_mini_pause_play"
+            app:layout_constraintEnd_toEndOf="@id/btn_mini_pause_play"/>
+
+        <TextView
+            android:id="@+id/tv_mini_complete_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hoàn thành"
+            android:textColor="#757575"
+            app:layout_constraintTop_toBottomOf="@id/btn_mini_complete"
+            app:layout_constraintStart_toStartOf="@id/btn_mini_complete"
+            app:layout_constraintEnd_toEndOf="@id/btn_mini_complete"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

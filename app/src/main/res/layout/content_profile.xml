@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#E0F7FA"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/btn_profile_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_left"
+            android:padding="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="46dp"
+            app:tint="@color/black" />
+
+        <TextView
+            android:id="@+id/btn_auth_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đăng xuất"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:padding="8dp"
+            app:drawableEndCompat="@drawable/ic_logout"
+            android:drawablePadding="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="46dp"
+            app:tint="@color/black" />
+
+        <ImageView
+            android:id="@+id/iv_profile_avatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="32dp"
+            android:src="@drawable/ic_profile"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_profile_back" />
+
+        <TextView
+            android:id="@+id/tv_profile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Hoahoang"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_profile_avatar" />
+
+        <TextView
+            android:id="@+id/tv_profile_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="32dp"
+            android:text="hghoa2005@gmail.com"
+            android:textColor="#555555"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_profile_name"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/btn_personal_info"
+            style="@style/ProfileMenuItem"
+            android:text="Thông tin cá nhân"
+            app:drawableStartCompat="@drawable/ic_profile" />
+
+        <TextView
+            android:id="@+id/btn_share_app"
+            style="@style/ProfileMenuItem"
+            android:text="Chia sẻ GoalTracker"
+            app:drawableStartCompat="@drawable/ic_share" />
+
+        <TextView
+            android:id="@+id/btn_theme_color"
+            style="@style/ProfileMenuItem"
+            android:text="Màu nền"
+            app:drawableStartCompat="@drawable/ic_palette" />
+
+        <TextView
+            android:id="@+id/btn_activity_schedule"
+            style="@style/ProfileMenuItem"
+            android:text="Lịch sinh hoạt của bạn"
+            app:drawableStartCompat="@drawable/ic_schedule" />
+
+        <TextView
+            android:id="@+id/btn_settings"
+            style="@style/ProfileMenuItem"
+            android:text="Cài đặt"
+            app:drawableStartCompat="@drawable/ic_settings" />
+
+    </LinearLayout>
+
+</LinearLayout>

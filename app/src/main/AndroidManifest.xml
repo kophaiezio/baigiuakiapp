@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GoalManagement">
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -31,6 +32,44 @@
             android:name=".ScheduleActivity"
             android:exported="false" />
 
-    </application>
+        <activity
+            android:name=".ProgressActivity"
+            android:exported="false" />
 
+        <activity
+            android:name=".StudyModeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".NotificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NotificationDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ScheduleSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".VerifyAccountActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NewPasswordActivity"
+            android:exported="false" />
+
+    </application>
 </manifest>
