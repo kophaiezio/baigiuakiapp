@@ -2,8 +2,8 @@ package com.example.goalmanagement;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.DialogInterface; // Import này có thể cần cho listener của AlertDialog
-import android.content.Intent; // Import này nếu bạn nhận dữ liệu từ Intent
+import android.content.DialogInterface;
+import android.content.Intent; // Thêm import này
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
@@ -24,12 +24,10 @@ public class StudyModeActivity extends AppCompatActivity {
     private ImageButton btnPausePlay, btnPostpone, btnComplete;
     private CountDownTimer countDownTimer;
 
-    // --- SỬA THỜI GIAN Ở ĐÂY ---
-    private long totalTimeInMillis = 30 * 1000; // Đã đổi thành 30 giây
-    // --- KẾT THÚC SỬA ---
-
+    private long totalTimeInMillis; // Sẽ được đặt khi onCreate
     private long timeLeftInMillis;
     private boolean isTimerRunning = false;
+    private String taskName; // Biến lưu tên task
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,26 +44,25 @@ public class StudyModeActivity extends AppCompatActivity {
         btnComplete = findViewById(R.id.btn_complete);
 
         // --- NHẬN DỮ LIỆU TỪ INTENT (QUAN TRỌNG) ---
-        // Lấy tên task và thời lượng từ Intent (nếu có)
-        String taskName = getIntent().getStringExtra("TASK_NAME");
-        long durationMinutes = getIntent().getLongExtra("TASK_DURATION_MINUTES", 0); // Lấy số phút (long)
+        taskName = getIntent().getStringExtra("TASK_NAME");
+        long durationMinutes = getIntent().getLongExtra("TASK_DURATION_MINUTES", 0);
 
         if (taskName != null) {
             tvTaskNameStudy.setText(taskName);
+        } else {
+            taskName = "Học tập"; // Đặt tên mặc định nếu không có
         }
 
         if (durationMinutes > 0) {
-            // Nếu có thời gian từ Intent (tính bằng phút), sử dụng nó
             totalTimeInMillis = durationMinutes * 60 * 1000;
         } else {
-            // Nếu không có hoặc bằng 0, mới dùng giá trị mặc định (30 giây)
+            // Nếu không có thời gian từ Intent, dùng 30 giây mặc định để test
             totalTimeInMillis = 30 * 1000;
         }
         // --- KẾT THÚC NHẬN DỮ LIỆU ---
 
-        timeLeftInMillis = totalTimeInMillis; // Khởi tạo thời gian còn lại
-        progressBarTimer.setMax((int) (totalTimeInMillis / 1000)); // Đặt max tính bằng giây
-        // progressBarTimer.setProgress((int) (timeLeftInMillis / 1000)); // Có thể đặt progress ban đầu
+        timeLeftInMillis = totalTimeInMillis;
+        progressBarTimer.setMax((int) (totalTimeInMillis / 1000)); // Max tính bằng giây
 
         startTimer(); // Bắt đầu đếm giờ
 
@@ -83,42 +80,55 @@ public class StudyModeActivity extends AppCompatActivity {
 
         // Xử lý nút Dời lịch
         btnPostpone.setOnClickListener(v -> {
-            pauseTimer(); // Nên dừng timer trước khi dời
-            Toast.makeText(this, "Đã dời lịch (chưa implement logic)", Toast.LENGTH_SHORT).show();
+            pauseTimer(); // Dừng timer
+            Toast.makeText(this, "Đã dời lịch", Toast.LENGTH_SHORT).show();
+
+            // Cập nhật trạng thái cho MainActivity
+            MainActivity.isTimerCurrentlyRunning = false;
+
             // TODO: Thêm logic cập nhật trạng thái task là "dời lịch" trong database
-            finish(); // Đóng màn hình đếm giờ
+            finish(); // Đóng màn hình
         });
     }
 
     private void startTimer() {
-        // Hủy timer cũ nếu có để tránh chạy nhiều timer cùng lúc
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
 
-        countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) { // Cập nhật mỗi giây
+        countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 timeLeftInMillis = millisUntilFinished;
                 updateCountdownUI();
+
+                // Cập nhật biến static để MainActivity đọc
+                MainActivity.currentTimerTimeLeft = millisUntilFinished;
             }
 
             @Override
             public void onFinish() {
                 isTimerRunning = false;
-                timeLeftInMillis = 0; // Đảm bảo về 0
-                updateCountdownUI(); // Cập nhật lần cuối về 00:00
-                // Tùy chọn: Phát âm thanh hoặc rung khi hết giờ
-                // ...
-                showTimerFinishedDialog(); // Hiển thị Dialog (Ảnh 2)
+                timeLeftInMillis = 0;
+                updateCountdownUI();
+
+                // Cập nhật biến static
+                MainActivity.isTimerCurrentlyRunning = false;
+
+                showTimerFinishedDialog();
             }
         }.start();
 
         isTimerRunning = true;
-        btnPausePlay.setImageResource(R.drawable.ic_pause); // Đổi icon thành Pause
-        // Cập nhật text dưới nút nếu cần (ví dụ từ "Bắt đầu" -> "Tạm dừng")
+        btnPausePlay.setImageResource(R.drawable.ic_pause);
         TextView pauseLabel = findViewById(R.id.tv_pause_label);
         if (pauseLabel != null) pauseLabel.setText("Tạm dừng");
+
+        // --- CẬP NHẬT TRẠNG THÁI CHO MAINACTIVITY ---
+        MainActivity.isTimerCurrentlyRunning = true;
+        MainActivity.currentTimerTaskName = this.taskName;
+        MainActivity.currentTimerTimeLeft = this.timeLeftInMillis;
+        // --- KẾT THÚC CẬP NHẬT ---
     }
 
     private void pauseTimer() {
@@ -126,10 +136,14 @@ public class StudyModeActivity extends AppCompatActivity {
             countDownTimer.cancel();
         }
         isTimerRunning = false;
-        btnPausePlay.setImageResource(R.drawable.ic_play); // Đổi icon thành Play
-        // Cập nhật text dưới nút nếu cần
+        btnPausePlay.setImageResource(R.drawable.ic_play);
         TextView pauseLabel = findViewById(R.id.tv_pause_label);
         if (pauseLabel != null) pauseLabel.setText("Tiếp tục");
+
+        // --- CẬP NHẬT TRẠNG THÁI CHO MAINACTIVITY ---
+        // Khi Tạm dừng, ta coi như timer không "chạy"
+        // để MainActivity hiển thị lại card "Tạo mục tiêu"
+        MainActivity.isTimerCurrentlyRunning = false;
     }
 
     private void updateCountdownUI() {
@@ -138,7 +152,6 @@ public class StudyModeActivity extends AppCompatActivity {
         String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
         tvTimerCountdown.setText(timeLeftFormatted);
 
-        // Cập nhật ProgressBar (tính bằng giây)
         int progress = (int) (timeLeftInMillis / 1000);
         progressBarTimer.setProgress(progress);
     }
@@ -148,66 +161,63 @@ public class StudyModeActivity extends AppCompatActivity {
             countDownTimer.cancel();
         }
         isTimerRunning = false;
+
+        // --- CẬP NHẬT TRẠNG THÁI CHO MAINACTIVITY ---
+        MainActivity.isTimerCurrentlyRunning = false;
+
         // TODO: Đánh dấu task là hoàn thành trong database
         Toast.makeText(this, "Đã hoàn thành!", Toast.LENGTH_SHORT).show();
-        finish(); // Đóng màn hình đếm giờ
+        finish();
     }
 
-    // Hiển thị Dialog Hết giờ (Ảnh 2 / image_697a80.png)
+    // Hiển thị Dialog Hết giờ (Giữ nguyên)
     private void showTimerFinishedDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        // Không cần setTitle nếu layout đã có title
         builder.setMessage("Bạn cần thêm thời gian để hoàn thành bài này không?");
 
         builder.setPositiveButton("Có", (dialog, which) -> {
-            showAddTimeDialog(); // Hiện dialog thêm giờ
+            showAddTimeDialog();
         });
         builder.setNegativeButton("Đã hoàn thành", (dialog, which) -> {
-            completeTask(); // Gọi hàm hoàn thành
+            completeTask();
         });
         builder.setCancelable(false);
         builder.show();
     }
 
-    // Hiển thị Dialog Thêm thời gian (Ảnh 3 / image_697d42.png)
+    // Hiển thị Dialog Thêm thời gian (Giữ nguyên)
     private void showAddTimeDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        // Nạp layout custom từ file dialog_add_time.xml
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_time, null);
         final EditText etAddTime = dialogView.findViewById(R.id.et_add_time_input);
 
-        builder.setView(dialogView); // Đặt layout custom cho dialog
-        // Không cần setTitle ở đây nếu layout đã có title
-
-        builder.setPositiveButton("Tiếp tục", null); // Set null để override trong OnShowListener
+        builder.setView(dialogView);
+        builder.setPositiveButton("Tiếp tục", null);
         builder.setNegativeButton("Quay lại", (dialog, which) -> {
-            showTimerFinishedDialog(); // Quay lại dialog trước đó
+            showTimerFinishedDialog();
         });
 
         AlertDialog dialog = builder.create();
-
-        // Override nút Positive để kiểm tra input trước khi dismiss
         dialog.setOnShowListener(dialogInterface -> {
             Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             button.setOnClickListener(view -> {
-                String timeStr = etAddTime.getText().toString().trim(); // Trim khoảng trắng thừa
+                String timeStr = etAddTime.getText().toString().trim();
                 if (timeStr.isEmpty()) {
                     Toast.makeText(StudyModeActivity.this, "Vui lòng nhập số phút", Toast.LENGTH_SHORT).show();
                 } else {
                     try {
                         int minutesToAdd = Integer.parseInt(timeStr);
-                        if (minutesToAdd <= 0) { // Kiểm tra số dương
+                        if (minutesToAdd <= 0) {
                             Toast.makeText(StudyModeActivity.this, "Số phút phải lớn hơn 0", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        // Tính toán thời gian mới và bắt đầu lại timer
                         timeLeftInMillis = minutesToAdd * 60 * 1000;
-                        totalTimeInMillis = timeLeftInMillis; // Cập nhật tổng thời gian mới
-                        progressBarTimer.setMax((int) (totalTimeInMillis / 1000)); // Cập nhật max progress
-                        startTimer(); // Bắt đầu đếm giờ lại với thời gian mới
-                        dialog.dismiss(); // Đóng dialog
+                        totalTimeInMillis = timeLeftInMillis;
+                        progressBarTimer.setMax((int) (totalTimeInMillis / 1000));
+                        startTimer(); // Bắt đầu đếm giờ lại
+                        dialog.dismiss();
 
                     } catch (NumberFormatException e) {
                         Toast.makeText(StudyModeActivity.this, "Số phút không hợp lệ", Toast.LENGTH_SHORT).show();
@@ -215,15 +225,13 @@ public class StudyModeActivity extends AppCompatActivity {
                 }
             });
         });
-
-        dialog.setCancelable(false); // Không cho tắt khi bấm ra ngoài
+        dialog.setCancelable(false);
         dialog.show();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Hủy CountDownTimer để tránh rò rỉ bộ nhớ
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }

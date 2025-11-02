@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".NotificationActivity">
+
+    <ImageView
+        android:id="@+id/btn_back_notification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_arrow_left"
+
+        android:padding="16dp"
+        android:contentDescription="Quay lại"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="46dp"/>
+
+    <TextView
+        android:id="@+id/tv_notification_title_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thông báo"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/btn_back_notification"
+        app:layout_constraintTop_toTopOf="@id/btn_back_notification"
+        app:layout_constraintBottom_toBottomOf="@id/btn_back_notification"/>
+
+    <TextView
+        android:id="@+id/btn_mark_all_read"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đánh dấu đã đọc"
+        android:textColor="@color/colorButtonBlue"
+
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btn_back_notification"
+        app:layout_constraintBottom_toBottomOf="@id/btn_back_notification"/>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0"
+        app:layout_constraintTop_toBottomOf="@id/btn_back_notification"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_notifications"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/divider"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:listitem="@layout/item_notification"
+        tools:itemCount="3"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

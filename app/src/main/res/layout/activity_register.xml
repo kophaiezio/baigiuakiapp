@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="32dp"
+    android:gravity="center_horizontal"
+    tools:context=".RegisterActivity">
+
+    <TextView
+        android:id="@+id/tv_register_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đăng kí tài khoản"
+        android:textColor="@color/black"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginTop="48dp"/>
+
+    <TextView
+        android:id="@+id/tv_register_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vui lòng cung cấp thông tin bên dưới"
+        android:textColor="#757575"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"/>
+
+    <EditText
+        android:id="@+id/et_register_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="abc@gmail.com"
+        android:inputType="textEmailAddress"
+        android:background="@drawable/edittext_rounded_border"
+        android:padding="12dp"
+        android:layout_marginTop="32dp"/>
+    <EditText
+        android:id="@+id/et_register_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tên*"
+        android:inputType="textPersonName"
+        android:background="@drawable/edittext_rounded_border"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"/>
+
+    <EditText
+        android:id="@+id/et_register_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Mật khẩu*"
+        android:inputType="textPassword"
+        android:background="@drawable/edittext_rounded_border"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"/>
+
+    <EditText
+        android:id="@+id/et_register_confirm_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nhập lại mật khẩu*"
+        android:inputType="textPassword"
+        android:background="@drawable/edittext_rounded_border"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/btn_register_submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tiếp tục"
+        android:backgroundTint="@color/colorButtonBlue"
+        android:textColor="@color/white"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        app:cornerRadius="12dp"
+        android:layout_marginTop="24dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đã có tài khoản? "
+            android:textColor="#757575"/>
+        <TextView
+            android:id="@+id/tv_go_to_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đăng nhập"
+            android:textColor="@color/colorButtonBlue"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true"/>
+    </LinearLayout>
+
+</LinearLayout>

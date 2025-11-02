@@ -1,49 +1,226 @@
 package com.example.goalmanagement;
 
+// --- CÁC IMPORT CẦN THIẾT (ĐÃ THÊM ĐẦY ĐỦ) ---
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.widget.ViewFlipper; // Thêm import
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog; // Thêm import
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView; // Import này vẫn cần dù hàm cũ bị comment
-
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager; // Thêm import
+import androidx.recyclerview.widget.RecyclerView; // Thêm import
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+// --- KẾT THÚC IMPORT ---
 
-public class MainActivity extends AppCompatActivity {
 
-    BottomNavigationView bottomNav; // Khai báo biến cho BottomNavigationView
+// Implement thêm OnScheduleInteractionListener để xử lý click Sửa/Xóa
+public class MainActivity extends AppCompatActivity implements ScheduleAdapter.OnScheduleInteractionListener {
+
+    BottomNavigationView bottomNav;
+    TextView tvWelcomeMessage, tvUserName;
+    ImageView imgAvatar, imgNotification;
+    SharedPreferences sharedPrefs;
+
+    CardView findFriendsCard, createTaskCard;
+
+    // Các biến cho logic mới
+    ViewFlipper cardFlipper;
+    View cardCreateGoalButton, miniTimerCardView;
+    RecyclerView rvHomeSchedule;
+    CardView cardNoData;
+    ScheduleAdapter homeScheduleAdapter;
+    List<ScheduleItem> todayScheduleList = new ArrayList<>();
+
+    // Biến static để GIẢ LẬP trạng thái timer
+    public static boolean isTimerCurrentlyRunning = false;
+    public static String currentTimerTaskName = "Task đang chạy";
+    public static long currentTimerTimeLeft = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Ánh xạ BottomNavigationView
+        sharedPrefs = getSharedPreferences(ProfileActivity.PREFS_NAME, MODE_PRIVATE);
+
+        // Ánh xạ View
         bottomNav = findViewById(R.id.bottom_navigation);
+        tvWelcomeMessage = findViewById(R.id.tv_welcome_message);
+        tvUserName = findViewById(R.id.tv_user_name);
+        imgAvatar = findViewById(R.id.img_avatar);
+        imgNotification = findViewById(R.id.img_notification);
 
-        // 1. Chạy hàm setup cho mục tiêu phổ biến
+        cardFlipper = findViewById(R.id.card_flipper);
+        rvHomeSchedule = findViewById(R.id.rv_home_schedule);
+        cardNoData = findViewById(R.id.card_no_data);
+
+        View cardCreateGoalView = cardFlipper.findViewById(R.id.card_create_goal);
+        miniTimerCardView = cardFlipper.findViewById(R.id.mini_timer_card);
+
+        if (cardCreateGoalView != null) {
+            cardCreateGoalButton = cardCreateGoalView.findViewById(R.id.btn_create_goal);
+        }
+
+        findFriendsCard = findViewById(R.id.card_find_friends);
+        createTaskCard = findViewById(R.id.card_create_task);
+
         setupPopularGoals();
-
-        // 2. BÌNH LUẬN (COMMENT OUT) HÀM CŨ VÀ GỌI HÀM MỚI
-        // setupCreateGoalButton(); // Đã comment out
-        setupMiniTimerCard(); // Gọi hàm mới
-
-        // 3. Thiết lập Listener cho BottomNavigationView
+        setupCardButtons();
         setupBottomNavigation();
+        setupNotificationButton();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadDataAndUpdateUI(); // Hàm tổng hợp
     }
 
     /**
-     * Hàm này tìm và thiết lập nội dung cho các mục tiêu phổ biến (Giữ nguyên)
+     * HÀM QUAN TRỌNG NHẤT: Kiểm tra dữ liệu và cập nhật giao diện Trang chủ
+     */
+    private void loadDataAndUpdateUI() {
+        // 1. Cập nhật Header (Đăng nhập / Tên)
+        updateHeaderUI();
+        // 2. Cập nhật Màu nền
+        loadThemeColor();
+        // 3. Đặt lại tab BottomNav
+        if(bottomNav != null) {
+            bottomNav.setSelectedItemId(R.id.nav_home);
+        }
+
+        // 4. Lấy dữ liệu lịch học (Giả lập)
+        todayScheduleList = getTodaySchedule();
+
+        // 5. Kiểm tra timer đang chạy
+        boolean isTimerRunning = isTimerCurrentlyRunning;
+
+        // 6. Cập nhật Card Flipper (Tạo mục tiêu / Mini Timer)
+        if (isTimerRunning && miniTimerCardView != null) {
+            if (cardFlipper.getDisplayedChild() != 1) {
+                cardFlipper.setDisplayedChild(1); // Lật sang Card 1 (Mini Timer)
+            }
+            TextView tvMiniTaskName = miniTimerCardView.findViewById(R.id.tv_mini_timer_task_name);
+            TextView tvMiniTime = miniTimerCardView.findViewById(R.id.tv_mini_timer_time);
+            if (tvMiniTaskName != null) tvMiniTaskName.setText(currentTimerTaskName);
+            if (tvMiniTime != null) {
+                int minutes = (int) (currentTimerTimeLeft / 1000) / 60;
+                int seconds = (int) (currentTimerTimeLeft / 1000) % 60;
+                tvMiniTime.setText(String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds));
+            }
+        } else {
+            if (cardFlipper.getDisplayedChild() != 0) {
+                cardFlipper.setDisplayedChild(0); // Lật sang Card 0 (Tạo mục tiêu)
+            }
+        }
+
+        // 7. Cập nhật Lịch học (RecyclerView / "Chưa có dữ liệu")
+        if (todayScheduleList.isEmpty()) {
+            rvHomeSchedule.setVisibility(View.GONE);
+            cardNoData.setVisibility(View.VISIBLE);
+        } else {
+            rvHomeSchedule.setVisibility(View.VISIBLE);
+            cardNoData.setVisibility(View.GONE);
+            if (homeScheduleAdapter == null) {
+                homeScheduleAdapter = new ScheduleAdapter(this, todayScheduleList, this);
+                rvHomeSchedule.setLayoutManager(new LinearLayoutManager(this));
+                rvHomeSchedule.setAdapter(homeScheduleAdapter);
+            } else {
+                homeScheduleAdapter.updateData(todayScheduleList);
+            }
+        }
+    }
+
+    /**
+     * Hàm giả lập lấy lịch học.
+     */
+    private List<ScheduleItem> getTodaySchedule() {
+        List<ScheduleItem> items = new ArrayList<>();
+        // TODO: Thay bằng logic lấy dữ liệu thật
+
+        // --- TEST KỊCH BẢN 1: KHÔNG CÓ LỊCH ---
+        // return items;
+
+        // --- TEST KỊCH BẢN 2: CÓ LỊCH ---
+        items.add(new ScheduleItem("08:00", "09:00", "Toeic", "Học ngữ pháp part 5", "study"));
+        items.add(new ScheduleItem("09:00", "09:15", "Nghỉ ngơi", "", "rest"));
+        return items;
+    }
+
+
+    /**
+     * HÀM CẬP NHẬT HEADER (ĐÃ SỬA LỖI ICON)
+     */
+    private void updateHeaderUI() {
+        boolean isLoggedIn = sharedPrefs.getBoolean(ProfileActivity.IS_LOGGED_IN_KEY, false);
+        if (isLoggedIn) {
+            String userName = sharedPrefs.getString(ProfileActivity.USER_NAME_KEY, "Bạn");
+            tvWelcomeMessage.setText("Chúc bạn ngày mới vui vẻ");
+            tvUserName.setText(userName);
+            tvUserName.setVisibility(View.VISIBLE);
+            imgAvatar.setImageResource(R.drawable.ic_avatar_placeholder);
+        } else {
+            tvWelcomeMessage.setText("Hãy đăng nhập tài khoản");
+            tvUserName.setVisibility(View.GONE);
+            imgAvatar.setImageResource(R.drawable.ic_profile_avatar); // Dùng icon login
+        }
+    }
+
+    /**
+     * HÀM LOAD MÀU NỀN (HÀM BỊ THIẾU)
+     */
+    private void loadThemeColor() {
+        SharedPreferences prefs = getSharedPreferences(ProfileActivity.PREFS_NAME, MODE_PRIVATE);
+        String defaultColor = "#E0F7FA";
+        String savedColorHex = prefs.getString(ProfileActivity.THEME_COLOR_KEY, defaultColor);
+
+        int colorInt = Color.parseColor(savedColorHex);
+
+        String colorHexPink = "#FCE4EC";
+        String colorHexYellow = "#FFF8E1";
+
+        View cardCreateGoalView = cardFlipper.findViewById(R.id.card_create_goal);
+        if (cardCreateGoalView instanceof CardView) {
+            ((CardView) cardCreateGoalView).setCardBackgroundColor(colorInt);
+        }
+        if (miniTimerCardView instanceof CardView) {
+            ((CardView) miniTimerCardView).setCardBackgroundColor(colorInt);
+        }
+
+        if (savedColorHex.equals(defaultColor)) {
+            if (findFriendsCard != null) findFriendsCard.setCardBackgroundColor(Color.parseColor(colorHexPink));
+            if (createTaskCard != null) createTaskCard.setCardBackgroundColor(Color.parseColor(colorHexYellow));
+        } else if (savedColorHex.equals(colorHexPink)) {
+            if (findFriendsCard != null) findFriendsCard.setCardBackgroundColor(Color.parseColor(defaultColor));
+            if (createTaskCard != null) createTaskCard.setCardBackgroundColor(Color.parseColor(colorHexYellow));
+        } else if (savedColorHex.equals(colorHexYellow)) {
+            if (findFriendsCard != null) findFriendsCard.setCardBackgroundColor(Color.parseColor(colorHexPink));
+            if (createTaskCard != null) createTaskCard.setCardBackgroundColor(Color.parseColor(defaultColor));
+        }
+    }
+
+
+    /**
+     * setupPopularGoals (Giữ nguyên)
      */
     private void setupPopularGoals() {
-        // --- SỬA MỤC IELTS ---
         View goalIelts = findViewById(R.id.goal_ielts);
         if (goalIelts != null) {
             TextView tvIelts = goalIelts.findViewById(R.id.tv_goal_name);
@@ -51,8 +228,6 @@ public class MainActivity extends AppCompatActivity {
             if (tvIelts != null) tvIelts.setText("Ielts");
             if (ivIelts != null) ivIelts.setImageResource(R.drawable.ic_ielts_icon);
         }
-
-        // --- SỬA MỤC ĐỌC SÁCH ---
         View goalReading = findViewById(R.id.goal_reading);
         if (goalReading != null) {
             TextView tvReading = goalReading.findViewById(R.id.tv_goal_name);
@@ -60,8 +235,6 @@ public class MainActivity extends AppCompatActivity {
             if (tvReading != null) tvReading.setText("Đọc sách");
             if (ivReading != null) ivReading.setImageResource(R.drawable.ic_reading_icon);
         }
-
-        // --- SỬA MỤC TẬP THỂ DỤC ---
         View goalExercise = findViewById(R.id.goal_exercise);
         if (goalExercise != null) {
             TextView tvExercise = goalExercise.findViewById(R.id.tv_goal_name);
@@ -72,109 +245,104 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Hàm này thiết lập sự kiện click cho nút "Tạo mục tiêu"
-     * (ĐÃ ĐƯỢC BÌNH LUẬN LẠI VÌ CARD NÀY ĐANG BỊ ẨN)
+     * Thiết lập sự kiện click cho các card trong Flipper
      */
-    /* // Bắt đầu bình luận
-    private void setupCreateGoalButton() {
-        CardView createGoalCard = findViewById(R.id.card_create_goal);
-        if (createGoalCard != null) {
-            View createGoalButton = createGoalCard.findViewById(R.id.btn_create_goal);
-            if (createGoalButton != null) {
-                createGoalButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(MainActivity.this, CreateGoalActivity.class);
-                        startActivity(intent);
-                    }
-                });
-            } else {
-                Toast.makeText(this, "Lỗi: Không tìm thấy btn_create_goal", Toast.LENGTH_LONG).show();
-            }
-        } else {
-            Toast.makeText(this, "Lỗi: Không tìm thấy card_create_goal", Toast.LENGTH_LONG).show();
-        }
-    }
-    */ // Kết thúc bình luận
-
-    /**
-     * HÀM MỚI: Thiết lập sự kiện click cho card mini timer
-     */
-    private void setupMiniTimerCard() {
-        // Dùng ID của thẻ <include> trong file activity_home.xml (hoặc content_home.xml)
-        View miniTimerCard = findViewById(R.id.mini_timer_card);
-
-        if (miniTimerCard != null) {
-            // Xử lý khi nhấn vào TOÀN BỘ card -> Mở màn hình StudyModeActivity
-            miniTimerCard.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, StudyModeActivity.class);
-
-                // TODO: Bạn cần logic để lấy task hiện tại từ database
-                // Code dưới đây chỉ là dữ liệu mẫu (để test):
-                intent.putExtra("TASK_NAME", "Nghe TOEIC - Listening Practice");
-                intent.putExtra("TASK_DURATION_MINUTES", 30L); // Gửi 30 phút (dạng long)
-
+    private void setupCardButtons() {
+        if (cardCreateGoalButton != null) {
+            cardCreateGoalButton.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, CreateGoalActivity.class);
                 startActivity(intent);
             });
-
-            // TODO: Xử lý logic cho các nút bấm BÊN TRONG card (Dời lịch, Bắt đầu, Hoàn thành)
-            // Ví dụ:
-            // ImageButton btnMiniPlay = miniTimerCard.findViewById(R.id.btn_mini_pause_play);
-            // btnMiniPlay.setOnClickListener(v_play -> { ... xử lý play/pause ... });
-
-            // ImageButton btnMiniPostpone = miniTimerCard.findViewById(R.id.btn_mini_postpone);
-            // btnMiniPostpone.setOnClickListener(v_postpone -> { ... xử lý dời lịch ... });
-
-        } else {
-            // Thông báo lỗi nếu không tìm thấy card (giúp gỡ lỗi)
-            // Có thể xảy ra nếu bạn đang dùng file layout chưa được cập nhật
-            Toast.makeText(this, "Lỗi: Không tìm thấy @id/mini_timer_card", Toast.LENGTH_LONG).show();
+        }
+        if (miniTimerCardView != null) {
+            miniTimerCardView.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, StudyModeActivity.class);
+                intent.putExtra("TASK_NAME", currentTimerTaskName);
+                intent.putExtra("TASK_DURATION_MINUTES", (currentTimerTimeLeft / 60000));
+                startActivity(intent);
+            });
         }
     }
 
+    /**
+     * setupNotificationButton (Giữ nguyên)
+     */
+    private void setupNotificationButton() {
+        if (imgNotification != null) {
+            imgNotification.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, NotificationActivity.class);
+                startActivity(intent);
+            });
+        }
+    }
 
     /**
-     * Hàm thiết lập xử lý sự kiện cho BottomNavigationView (Giữ nguyên)
+     * setupBottomNavigation (ĐÃ SỬA LỖI LOGIC RETURN)
      */
     private void setupBottomNavigation() {
-        // Đặt mục Trang chủ là mục được chọn mặc định khi mở app
-        bottomNav.setSelectedItemId(R.id.nav_home);
-
-        // Gán Listener để xử lý khi người dùng nhấn vào các mục
         bottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
-                // Khai báo Intent ở ngoài
                 Intent intent = null;
-
                 if (itemId == R.id.nav_home) {
-                    // Đã ở trang chủ, không cần chuyển
                     return true;
                 } else if (itemId == R.id.nav_schedule) {
-                    // Mở màn hình Lịch học
                     intent = new Intent(MainActivity.this, ScheduleActivity.class);
                 } else if (itemId == R.id.nav_progress) {
-                    // SỬA Ở ĐÂY: Mở ProgressActivity
                     intent = new Intent(MainActivity.this, ProgressActivity.class);
                 } else if (itemId == R.id.nav_community) {
-                    // TODO: Mở màn hình Cộng đồng
                     Toast.makeText(MainActivity.this, "Mở Cộng đồng", Toast.LENGTH_SHORT).show();
                 } else if (itemId == R.id.nav_profile) {
-                    // TODO: Mở màn hình Cá nhân
-                    Toast.makeText(MainActivity.this, "Mở Cá nhân", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(MainActivity.this, ProfileActivity.class);
                 }
 
-                // Nếu có Intent được tạo thì mới startActivity
                 if (intent != null) {
-                    // Cờ này tối ưu hóa việc chuyển đổi giữa các Activity trong BottomNavigationView
                     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(intent);
-                    return true; // Đánh dấu đã xử lý
+                    overridePendingTransition(0, 0);
+                    return true; // Trả về true VÌ ĐÃ XỬ LÝ
                 }
 
-                return false; // Chưa xử lý
+                // Nếu là "Cộng đồng" (chỉ hiện Toast)
+                if (itemId == R.id.nav_community) {
+                    return true; // Vẫn trả về true vì đã xử lý
+                }
+
+                return false; // Trả về false nếu không item nào khớp
             }
         });
+    }
+
+    // --- CÁC HÀM XỬ LÝ SỬA/XÓA TỪ ADAPTER ---
+
+    @Override
+    public void onEditClick(int position) {
+        if (position >= 0 && position < todayScheduleList.size()) {
+            ScheduleItem item = todayScheduleList.get(position);
+            Toast.makeText(this, "Sửa: " + item.title, Toast.LENGTH_SHORT).show();
+            // TODO: Mở màn hình Sửa
+        }
+    }
+
+    @Override
+    public void onDeleteClick(int position) {
+        if (position >= 0 && position < todayScheduleList.size()) {
+            ScheduleItem item = todayScheduleList.get(position);
+            new AlertDialog.Builder(this)
+                    .setTitle("Xác nhận xóa")
+                    .setMessage("Bạn có chắc muốn xóa '" + item.title + "'?")
+                    .setPositiveButton("Xóa", (dialog, which) -> {
+                        todayScheduleList.remove(position);
+                        homeScheduleAdapter.notifyItemRemoved(position);
+                        homeScheduleAdapter.notifyItemRangeChanged(position, todayScheduleList.size());
+                        Toast.makeText(this, "Đã xóa", Toast.LENGTH_SHORT).show();
+                        if (todayScheduleList.isEmpty()) {
+                            loadDataAndUpdateUI();
+                        }
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
+        }
     }
 }
