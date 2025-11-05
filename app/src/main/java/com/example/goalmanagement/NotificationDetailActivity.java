@@ -1,48 +1,124 @@
 package com.example.goalmanagement;
 
-import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.goalmanagement.Notification;
+import java.util.List;
 
-public class NotificationDetailActivity extends AppCompatActivity {
+public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
+
+    private final List<Notification> notificationList;
+    private final Context context;
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Notification notification);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    public NotificationAdapter(Context context, List<Notification> notificationList) {
+        this.context = context;
+        this.notificationList = notificationList;
+    }
+
+    @NonNull
+    @Override
+    public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notification, parent, false);
+        return new NotificationViewHolder(view);
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Áp dụng thiết lập full screen tương tự
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            getWindow().setDecorFitsSystemWindows(false);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+    public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
+        Notification notification = notificationList.get(position);
+
+        // 1. Cấu hình Icon và Màu sắc dựa trên type
+        int iconResId;
+        int color;
+
+        // Giả lập các loại icon và màu sắc
+        if ("reminder".equals(notification.iconType)) {
+            iconResId = R.drawable.ic_notifications;
+            color = Color.parseColor("#007AFF"); // Xanh dương
+        } else if ("report".equals(notification.iconType)) {
+            iconResId = R.drawable.ic_progress; // Cần tạo icon này
+            color = Color.parseColor("#FF577F"); // Hồng
+        } else { // progress
+            iconResId = R.drawable.ic_task_book; // Cần tạo icon này
+            color = Color.parseColor("#FF6B6B"); // Đỏ/Cam
         }
 
-        setContentView(R.layout.activity_notification_detail);
+        // Thiết lập icon
+        holder.icon.setImageResource(iconResId);
 
-        // Lấy dữ liệu từ Intent
-        Bundle extras = getIntent().getExtras();
-        String title = extras != null ? extras.getString("title", "Không có tiêu đề") : "Không có tiêu đề";
-        String content = extras != null ? extras.getString("content", "Không có nội dung") : "Không có nội dung";
-        String dateTime = extras != null ? extras.getString("dateTime", "") : "";
+        // Thiết lập màu nền cho icon (Lấy background drawable đã định nghĩa)
+        GradientDrawable background = (GradientDrawable) holder.icon.getBackground().mutate();
+        background.setColor(color);
 
-        // Ánh xạ và thiết lập nội dung
-        TextView detailTitle = findViewById(R.id.detailTitle);
-        TextView detailDateTime = findViewById(R.id.detailDateTime);
-        TextView detailContent = findViewById(R.id.detailContent);
+        // 2. Cấu hình Nội dung và trạng thái Đã đọc/Chưa đọc
+        holder.title.setText(notification.title);
+        holder.content.setText(notification.content);
+        holder.time.setText(notification.timeAgo);
 
-        detailTitle.setText(title);
-        detailDateTime.setText(dateTime);
-        detailContent.setText(content);
+        // Hiển thị/Ẩn vòng tròn báo chưa đọc
+        holder.unreadIndicator.setVisibility(notification.isRead ? View.GONE : View.VISIBLE);
 
-        // Xử lý sự kiện
-        findViewById(R.id.closeButton).setOnClickListener(v -> finish());
-        findViewById(R.id.actionButton).setOnClickListener(v -> Toast.makeText(this, "Mở tùy chọn...", Toast.LENGTH_SHORT).show());
-        findViewById(R.id.viewScheduleButton).setOnClickListener(v -> Toast.makeText(this, "Xem lịch học...", Toast.LENGTH_SHORT).show());
-        findViewById(R.id.startButton).setOnClickListener(v -> Toast.makeText(this, "Bắt đầu ngay!", Toast.LENGTH_SHORT).show());
+        // Đặt lắng nghe sự kiện
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(notification);
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return notificationList.size();
+    }
+
+    // Đánh dấu một thông báo đã đọc
+    public void markAsRead(Notification notification) {
+        int index = notificationList.indexOf(notification);
+        if (index != -1) {
+            notification.isRead = true;
+            notifyItemChanged(index);
+        }
+    }
+
+    // Đánh dấu tất cả đã đọc
+    public void markAllAsRead() {
+        for (Notification n : notificationList) {
+            n.isRead = true;
+        }
+        notifyDataSetChanged();
+    }
+
+    public static class NotificationViewHolder extends RecyclerView.ViewHolder {
+        ImageView icon;
+        TextView title;
+        TextView content;
+        TextView time;
+        View unreadIndicator;
+
+        public NotificationViewHolder(@NonNull View itemView) {
+            super(itemView);
+            icon = itemView.findViewById(R.id.notificationIcon);
+            title = itemView.findViewById(R.id.notificationTitle);
+            content = itemView.findViewById(R.id.notificationContent);
+            time = itemView.findViewById(R.id.notificationTime);
+            unreadIndicator = itemView.findViewById(R.id.unreadIndicator);
+        }
     }
 }

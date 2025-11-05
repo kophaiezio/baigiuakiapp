@@ -17,7 +17,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:itemIconTint="@color/bottom_nav_color_selector"
         app:itemTextColor="@color/bottom_nav_color_selector"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu"
+        app:itemActiveIndicatorStyle="@style/App.BottomNav.Indicator"
+        app:labelVisibilityMode="labeled"
+        android:layout_marginTop="46dp"/>
 
     <ScrollView
         android:id="@+id/scroll_view"

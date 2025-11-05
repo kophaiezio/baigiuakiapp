@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5"
+    tools:context=".SettingsActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:padding="16dp"
+        android:layout_marginTop="16dp">
+
+        <ImageView
+            android:id="@+id/btn_back_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_left"
+            android:padding="8dp"
+            android:contentDescription="Quay lại"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+
+            app:tint="@color/black" />
+        <TextView
+            android:id="@+id/tv_settings_title_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cài đặt"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/btn_back_settings"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tùy chọn nâng cao"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                app:drawableStartCompat="@drawable/ic_tune"
+                android:drawablePadding="8dp"
+                app:drawableTint="@color/black"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout style="@style/SettingsItemRow">
+                <LinearLayout
+                    style="@style/SettingsItemTextLayout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/switch_pomodoro">
+                    <TextView style="@style/SettingsItemTitle" android:text="Chế độ Pomodoro"/>
+                    <TextView style="@style/SettingsItemSubtitle" android:text="Chia nhỏ task thành các phần 25 phút"/>
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_pomodoro"
+                    style="@style/SettingsItemSwitch"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout style="@style/SettingsItemRow">
+                <LinearLayout
+                    style="@style/SettingsItemTextLayout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/switch_auto_postpone">
+                    <TextView style="@style/SettingsItemTitle" android:text="Tự động dời task"/>
+                    <TextView style="@style/SettingsItemSubtitle" android:text="Tự động dời task bỏ qua sang ngày mai"/>
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_auto_postpone"
+                    style="@style/SettingsItemSwitch"
+                    android:checked="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout style="@style/SettingsItemRow">
+                <LinearLayout
+                    style="@style/SettingsItemTextLayout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/spinner_break_time">
+                    <TextView style="@style/SettingsItemTitle" android:text="Nghỉ giữa task"/>
+                    <TextView style="@style/SettingsItemSubtitle" android:text="Thêm thời gian nghỉ ngơi giữa các task"/>
+                </LinearLayout>
+
+                <Spinner
+                    android:id="@+id/spinner_break_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout style="@style/SettingsItemRow">
+                <LinearLayout
+                    style="@style/SettingsItemTextLayout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/tv_google_calendar_status">
+                    <TextView style="@style/SettingsItemTitle" android:text="Đồng bộ lịch"/>
+                    <TextView style="@style/SettingsItemSubtitle" android:text="Kết nối với Google Calendar"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_google_calendar_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Kết nối"
+                    android:textColor="@color/colorButtonBlue"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="0dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cài đặt thông báo"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                app:drawableStartCompat="@drawable/ic_settings"
+                android:drawablePadding="8dp"
+                app:drawableTint="@color/black"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout style="@style/SettingsItemRow">
+                <LinearLayout
+                    style="@style/SettingsItemTextLayout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/switch_reminders">
+                    <TextView style="@style/SettingsItemTitle" android:text="Nhắc nhở học tập"/>
+                    <TextView style="@style/SettingsItemSubtitle" android:text="Thông báo trước 10 phút mỗi task"/>
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_reminders"
+                    style="@style/SettingsItemSwitch"
+                    android:checked="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout style="@style/SettingsItemRow">
+                <LinearLayout
+                    style="@style/SettingsItemTextLayout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/switch_weekly_report">
+                    <TextView style="@style/SettingsItemTitle" android:text="Báo cáo hàng tuần"/>
+                    <TextView style="@style/SettingsItemSubtitle" android:text="Tổng kết tiến độ mỗi Chủ nhật"/>
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_weekly_report"
+                    style="@style/SettingsItemSwitch"
+                    android:checked="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout style="@style/SettingsItemRow">
+                <LinearLayout
+                    style="@style/SettingsItemTextLayout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/switch_goal_warnings">
+                    <TextView style="@style/SettingsItemTitle" android:text="Cảnh báo mục tiêu"/>
+                    <TextView style="@style/SettingsItemSubtitle" android:text="Thông báo khi có nguy cơ không đạt mục tiêu"/>
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_goal_warnings"
+                    style="@style/SettingsItemSwitch"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout style="@style/SettingsItemRow">
+                <LinearLayout
+                    style="@style/SettingsItemTextLayout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/switch_achievements">
+                    <TextView style="@style/SettingsItemTitle" android:text="Thành tựu"/>
+                    <TextView style="@style/SettingsItemSubtitle" android:text="Thông báo khi đạt được thành tựu mới"/>
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_achievements"
+                    style="@style/SettingsItemSwitch"
+                    android:checked="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

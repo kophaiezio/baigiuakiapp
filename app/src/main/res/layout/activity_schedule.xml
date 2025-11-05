@@ -6,13 +6,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".ScheduleAdapter">
+    tools:context=".ScheduleActivity">
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_schedule"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:labelVisibilityMode="labeled"
+        app:itemActiveIndicatorStyle="@style/App.BottomNav.Indicator"
+        android:layout_marginTop="46dp"/>
 
     <TextView
         android:id="@+id/tv_schedule_main_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:layout_marginStart="16dp"
         android:text="Lịch học"
         android:textColor="@color/black"
@@ -37,13 +52,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_arrow_left"
-
         android:padding="8dp"
         android:layout_marginStart="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_schedule_main_title"
         app:layout_constraintBottom_toTopOf="@+id/tv_daily_schedule_title"/>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_date_selector"
         android:layout_width="0dp"
@@ -54,15 +67,12 @@
         app:layout_constraintEnd_toStartOf="@id/btn_next_day"
         app:layout_constraintTop_toBottomOf="@id/tv_schedule_main_title"
         tools:listitem="@layout/item_date_selector"
-
         tools:itemCount="7"/>
-
     <ImageView
         android:id="@+id/btn_next_day"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_arrow_right"
-
         android:padding="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -82,6 +92,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/rv_date_selector" />
 
+    <Button
+        android:id="@+id/btn_add_schedule"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:text="+ Thêm lịch học"
+        android:drawableStart="@drawable/ic_add"
+        android:backgroundTint="#F0F0F0"
+        android:textColor="@color/black"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_schedule"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_start_learning"/>
+    <Button
+        android:id="@+id/btn_start_learning"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Bắt đầu học →"
+        android:backgroundTint="@color/colorButtonBlue"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_schedule"
+        app:layout_constraintStart_toEndOf="@id/btn_add_schedule"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_schedule_items"
         android:layout_width="match_parent"
@@ -92,39 +132,5 @@
         app:layout_constraintBottom_toTopOf="@id/btn_add_schedule"
         tools:listitem="@layout/item_schedule"
         tools:itemCount="6"/>
-
-    <Button
-        android:id="@+id/btn_add_schedule"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:text="+ Thêm lịch học"
-        android:drawableStart="@drawable/ic_add"
-
-        android:backgroundTint="#F0F0F0"
-
-        android:textColor="@color/black"
-        android:textAllCaps="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btn_start_learning"/>
-
-    <Button
-        android:id="@+id/btn_start_learning"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="Bắt đầu học →"
-        android:backgroundTint="@color/colorButtonBlue"
-
-        android:textColor="@color/white"
-        android:textAllCaps="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btn_add_schedule"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

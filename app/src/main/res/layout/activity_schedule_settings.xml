@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".ScheduleSettingsActivity">
+
+    <Button
+        android:id="@+id/btn_create_fixed_schedule"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Tạo lịch sinh hoạt"
+        android:backgroundTint="@color/colorButtonBlue"
+        android:textColor="@color/white"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        app:cornerRadius="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_create_fixed_schedule"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/tv_fixed_schedule_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Lịch trình sinh hoạt của bạn"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginTop="32dp"/>
+
+            <TextView
+                android:id="@+id/tv_fixed_schedule_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="48dp"
+                android:gravity="center"
+                android:text="Giúp chúng tôi tạo lịch học phù hợp với bạn"
+                android:textColor="#555555"
+                android:textSize="16sp"/>
+
+            <TextView
+                style="@style/FormLabel"
+                android:text="Thời gian rảnh của bạn *" />
+            <Spinner
+                android:id="@+id/spinner_free_days"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/edittext_rounded_border_blue"
+                android:minHeight="48dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp">
+                    <TextView
+                        style="@style/FormLabel"
+                        android:text="Bắt đầu *" />
+                    <EditText
+                        android:id="@+id/et_free_time_start"
+                        style="@style/FormEditTextTime"
+                        android:hint="--:--" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
+                    <TextView
+                        style="@style/FormLabel"
+                        android:text="Kết thúc *" />
+                    <EditText
+                        android:id="@+id/et_free_time_end"
+                        style="@style/FormEditTextTime"
+                        android:hint="--:--" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_add_free_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+ Thêm thời gian rảnh"
+                android:backgroundTint="#F0F0F0"
+                android:textColor="@color/black"
+                android:layout_marginTop="16dp"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_add"
+                app:iconTint="@color/black"/>
+
+            <TextView
+                style="@style/FormLabel"
+                android:layout_marginTop="24dp"
+                android:text="Nghỉ ngơi *" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Thời gian học trong 1 lần"
+                android:textColor="#555555"/>
+            <EditText
+                android:id="@+id/et_study_duration"
+                style="@style/FormEditTextTime"
+                android:layout_marginTop="8dp"
+                android:hint="--:--" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Thời gian nghỉ giữa giờ"
+                android:textColor="#555555"/>
+            <EditText
+                android:id="@+id/et_break_duration"
+                style="@style/FormEditTextTime"
+                android:layout_marginTop="8dp"
+                android:hint="--:--" />
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
