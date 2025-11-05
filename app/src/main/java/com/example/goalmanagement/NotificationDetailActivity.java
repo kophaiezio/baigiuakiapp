@@ -1,75 +1,124 @@
 package com.example.goalmanagement;
 
-import androidx.appcompat.app.AppCompatActivity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.widget.Button;
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.goalmanagement.Notification;
+import java.util.List;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
 
-public class NotificationDetailActivity extends AppCompatActivity {
+    private final List<Notification> notificationList;
+    private final Context context;
+    private OnItemClickListener listener;
 
-    TextView tvDetailTitle, tvDetailTimestamp, tvDetailContent;
-    Button btnViewSchedule, btnStartNow;
-    ImageView btnBack;
+    public interface OnItemClickListener {
+        void onItemClick(Notification notification);
+    }
 
-    private NotificationItem item; // Biến lưu thông báo được gửi qua
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    public NotificationAdapter(Context context, List<Notification> notificationList) {
+        this.context = context;
+        this.notificationList = notificationList;
+    }
+
+    @NonNull
+    @Override
+    public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notification, parent, false);
+        return new NotificationViewHolder(view);
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notification_detail);
+    public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
+        Notification notification = notificationList.get(position);
 
-        // Ánh xạ View
-        tvDetailTitle = findViewById(R.id.tv_detail_title);
-        tvDetailTimestamp = findViewById(R.id.tv_detail_timestamp);
-        tvDetailContent = findViewById(R.id.tv_detail_content);
-        btnViewSchedule = findViewById(R.id.btn_detail_view_schedule);
-        btnStartNow = findViewById(R.id.btn_detail_start);
-        btnBack = findViewById(R.id.btn_back_detail);
+        // 1. Cấu hình Icon và Màu sắc dựa trên type
+        int iconResId;
+        int color;
 
-        btnBack.setOnClickListener(v -> finish());
-
-        // Nhận dữ liệu từ Intent
-        item = (NotificationItem) getIntent().getSerializableExtra("notification_item");
-
-        if (item != null) {
-            // Gắn dữ liệu lên View
-            tvDetailTitle.setText(item.getTitle());
-            tvDetailContent.setText(item.getContent());
-
-            // Tạo timestamp giả lập (bạn có thể truyền timestamp thật qua Intent)
-            String timestamp = new SimpleDateFormat("EEEE, dd/MM/yyyy • hh:mm a", new Locale("vi", "VN")).format(new Date());
-            tvDetailTimestamp.setText(timestamp);
-
-        } else {
-            tvDetailTitle.setText("Lỗi thông báo");
-            tvDetailContent.setText("Không nhận được dữ liệu.");
+        // Giả lập các loại icon và màu sắc
+        if ("reminder".equals(notification.iconType)) {
+            iconResId = R.drawable.ic_notifications;
+            color = Color.parseColor("#007AFF"); // Xanh dương
+        } else if ("report".equals(notification.iconType)) {
+            iconResId = R.drawable.ic_progress; // Cần tạo icon này
+            color = Color.parseColor("#FF577F"); // Hồng
+        } else { // progress
+            iconResId = R.drawable.ic_task_book; // Cần tạo icon này
+            color = Color.parseColor("#FF6B6B"); // Đỏ/Cam
         }
 
-        // Xử lý nút "Xem lịch học"
-        btnViewSchedule.setOnClickListener(v -> {
-            Intent intent = new Intent(NotificationDetailActivity.this, ScheduleActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Mở ScheduleActivity
-            startActivity(intent);
-            finish(); // Đóng màn hình này
-        });
+        // Thiết lập icon
+        holder.icon.setImageResource(iconResId);
 
-        // Xử lý nút "Bắt đầu ngay"
-        btnStartNow.setOnClickListener(v -> {
-            Intent intent = new Intent(NotificationDetailActivity.this, StudyModeActivity.class);
-            // TODO: Truyền dữ liệu task (Tên, thời gian) vào Intent
-            // Dùng dữ liệu từ 'item' để tìm task tương ứng và gửi đi
-            intent.putExtra("TASK_NAME", "TOEIC Reading Practice"); // Dữ liệu giả lập
-            intent.putExtra("TASK_DURATION_MINUTES", 60L); // Dữ liệu giả lập
+        // Thiết lập màu nền cho icon (Lấy background drawable đã định nghĩa)
+        GradientDrawable background = (GradientDrawable) holder.icon.getBackground().mutate();
+        background.setColor(color);
 
-            startActivity(intent);
-            finish(); // Đóng màn hình này
+        // 2. Cấu hình Nội dung và trạng thái Đã đọc/Chưa đọc
+        holder.title.setText(notification.title);
+        holder.content.setText(notification.content);
+        holder.time.setText(notification.timeAgo);
+
+        // Hiển thị/Ẩn vòng tròn báo chưa đọc
+        holder.unreadIndicator.setVisibility(notification.isRead ? View.GONE : View.VISIBLE);
+
+        // Đặt lắng nghe sự kiện
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(notification);
+            }
         });
+    }
+
+    @Override
+    public int getItemCount() {
+        return notificationList.size();
+    }
+
+    // Đánh dấu một thông báo đã đọc
+    public void markAsRead(Notification notification) {
+        int index = notificationList.indexOf(notification);
+        if (index != -1) {
+            notification.isRead = true;
+            notifyItemChanged(index);
+        }
+    }
+
+    // Đánh dấu tất cả đã đọc
+    public void markAllAsRead() {
+        for (Notification n : notificationList) {
+            n.isRead = true;
+        }
+        notifyDataSetChanged();
+    }
+
+    public static class NotificationViewHolder extends RecyclerView.ViewHolder {
+        ImageView icon;
+        TextView title;
+        TextView content;
+        TextView time;
+        View unreadIndicator;
+
+        public NotificationViewHolder(@NonNull View itemView) {
+            super(itemView);
+            icon = itemView.findViewById(R.id.notificationIcon);
+            title = itemView.findViewById(R.id.notificationTitle);
+            content = itemView.findViewById(R.id.notificationContent);
+            time = itemView.findViewById(R.id.notificationTime);
+            unreadIndicator = itemView.findViewById(R.id.unreadIndicator);
+        }
     }
 }

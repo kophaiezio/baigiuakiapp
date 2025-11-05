@@ -1,112 +1,124 @@
 package com.example.goalmanagement;
 
 import android.content.Context;
-import android.content.Intent; // Thêm import
-import android.graphics.Color; // Thêm import
-import android.graphics.drawable.GradientDrawable; // Thêm import
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat; // Thêm import
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.goalmanagement.Notification;
 import java.util.List;
 
-public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
+public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
 
-    private List<NotificationItem> notifications;
-    private Context context;
+    private final List<Notification> notificationList;
+    private final Context context;
+    private OnItemClickListener listener;
 
-    public NotificationAdapter(Context context, List<NotificationItem> notifications) {
-        this.context = context;
-        this.notifications = notifications;
+    public interface OnItemClickListener {
+        void onItemClick(Notification notification);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        View unreadDot;
-        ImageView ivIcon;
-        TextView tvTitle, tvTime, tvContent;
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            unreadDot = itemView.findViewById(R.id.unread_dot);
-            ivIcon = itemView.findViewById(R.id.iv_notification_icon);
-            tvTitle = itemView.findViewById(R.id.tv_notification_title);
-            tvTime = itemView.findViewById(R.id.tv_notification_time);
-            tvContent = itemView.findViewById(R.id.tv_notification_content);
-        }
+    public NotificationAdapter(Context context, List<Notification> notificationList) {
+        this.context = context;
+        this.notificationList = notificationList;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_notification, parent, false);
-        return new ViewHolder(view);
+    public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notification, parent, false);
+        return new NotificationViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        NotificationItem item = notifications.get(position);
+    public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
+        Notification notification = notificationList.get(position);
 
-        // Gắn dữ liệu
-        holder.tvTitle.setText(item.getTitle());
-        holder.tvTime.setText(item.getTimeAgo());
-        holder.tvContent.setText(item.getContent());
+        // 1. Cấu hình Icon và Màu sắc dựa trên type
+        int iconResId;
+        int color;
 
-        // Lấy màu nền (cần tạo trong res/drawable)
-        GradientDrawable iconBg = (GradientDrawable) holder.ivIcon.getBackground();
-
-        // Xử lý logic Đã đọc / Chưa đọc
-        if (item.isRead()) {
-            // Trạng thái ĐÃ ĐỌC (Ảnh 2)
-            holder.unreadDot.setVisibility(View.GONE); // Ẩn chấm đỏ
-            holder.tvTitle.setTextColor(Color.parseColor("#757575")); // Chữ xám
-            holder.tvContent.setTextColor(Color.parseColor("#757575"));
-            iconBg.setColor(Color.parseColor("#F5F5F5")); // Nền icon xám nhạt
-            holder.ivIcon.setColorFilter(Color.parseColor("#757575")); // Icon xám
-        } else {
-            // Trạng thái CHƯA ĐỌC (Ảnh 1)
-            holder.unreadDot.setVisibility(View.VISIBLE); // Hiện chấm đỏ
-            holder.tvTitle.setTextColor(Color.BLACK); // Chữ đen
-            holder.tvContent.setTextColor(Color.parseColor("#333333"));
-
-            // Đổi màu nền và icon dựa trên loại thông báo
-            if ("warning".equals(item.getType())) {
-                iconBg.setColor(Color.parseColor("#FFF0F0")); // Nền đỏ nhạt
-                holder.ivIcon.setImageResource(R.drawable.ic_warning); // Cần icon này
-                holder.ivIcon.setColorFilter(Color.RED); // Icon đỏ
-            } else { // "reminder"
-                iconBg.setColor(Color.parseColor("#FFF0F0")); // Nền đỏ nhạt
-                holder.ivIcon.setImageResource(R.drawable.ic_notifications);
-                holder.ivIcon.setColorFilter(Color.RED); // Icon đỏ
-            }
+        // Giả lập các loại icon và màu sắc
+        if ("reminder".equals(notification.iconType)) {
+            iconResId = R.drawable.ic_notifications;
+            color = Color.parseColor("#007AFF"); // Xanh dương
+        } else if ("report".equals(notification.iconType)) {
+            iconResId = R.drawable.ic_progress; // Cần tạo icon này
+            color = Color.parseColor("#FF577F"); // Hồng
+        } else { // progress
+            iconResId = R.drawable.ic_task_book; // Cần tạo icon này
+            color = Color.parseColor("#FF6B6B"); // Đỏ/Cam
         }
 
-        // Xử lý Click vào item -> Mở màn hình Detail (Ảnh 3)
-        holder.itemView.setOnClickListener(v -> {
-            // Đánh dấu item này là đã đọc
-            item.setRead(true);
-            notifyItemChanged(holder.getAdapterPosition()); // Cập nhật lại giao diện item này
+        // Thiết lập icon
+        holder.icon.setImageResource(iconResId);
 
-            // Mở NotificationDetailActivity
-            Intent intent = new Intent(context, NotificationDetailActivity.class);
-            intent.putExtra("notification_item", item); // Gửi cả đối tượng qua
-            context.startActivity(intent);
+        // Thiết lập màu nền cho icon (Lấy background drawable đã định nghĩa)
+        GradientDrawable background = (GradientDrawable) holder.icon.getBackground().mutate();
+        background.setColor(color);
+
+        // 2. Cấu hình Nội dung và trạng thái Đã đọc/Chưa đọc
+        holder.title.setText(notification.title);
+        holder.content.setText(notification.content);
+        holder.time.setText(notification.timeAgo);
+
+        // Hiển thị/Ẩn vòng tròn báo chưa đọc
+        holder.unreadIndicator.setVisibility(notification.isRead ? View.GONE : View.VISIBLE);
+
+        // Đặt lắng nghe sự kiện
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(notification);
+            }
         });
     }
 
     @Override
     public int getItemCount() {
-        return notifications.size();
+        return notificationList.size();
     }
 
-    // Hàm để đánh dấu tất cả là đã đọc
-    public void markAllAsRead() {
-        for (NotificationItem item : notifications) {
-            item.setRead(true);
+    // Đánh dấu một thông báo đã đọc
+    public void markAsRead(Notification notification) {
+        int index = notificationList.indexOf(notification);
+        if (index != -1) {
+            notification.isRead = true;
+            notifyItemChanged(index);
         }
-        notifyDataSetChanged(); // Cập nhật lại toàn bộ danh sách
+    }
+
+    // Đánh dấu tất cả đã đọc
+    public void markAllAsRead() {
+        for (Notification n : notificationList) {
+            n.isRead = true;
+        }
+        notifyDataSetChanged();
+    }
+
+    public static class NotificationViewHolder extends RecyclerView.ViewHolder {
+        ImageView icon;
+        TextView title;
+        TextView content;
+        TextView time;
+        View unreadIndicator;
+
+        public NotificationViewHolder(@NonNull View itemView) {
+            super(itemView);
+            icon = itemView.findViewById(R.id.notificationIcon);
+            title = itemView.findViewById(R.id.notificationTitle);
+            content = itemView.findViewById(R.id.notificationContent);
+            time = itemView.findViewById(R.id.notificationTime);
+            unreadIndicator = itemView.findViewById(R.id.unreadIndicator);
+        }
     }
 }

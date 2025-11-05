@@ -29,6 +29,7 @@ public class ProfileActivity extends AppCompatActivity {
     public static final String IS_LOGGED_IN_KEY = "IsLoggedIn";
     public static final String USER_NAME_KEY = "UserName";
     public static final String USER_EMAIL_KEY = "UserEmail";
+    public static final String USER_TOKEN_KEY = "UserToken";
     public static final String THEME_COLOR_KEY = "ThemeColor";
 
     @Override
